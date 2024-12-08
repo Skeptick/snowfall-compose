@@ -33,12 +33,18 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build
-        run: ./gradlew :sample:jsBrowserDistribution
+        run: ./gradlew :sample:jsBrowserDistribution :sample:wasmJsBrowserDistribution
+
+      - name: Copy demo
+        run: |
+          mkdir -p demo
+          cp -r sample/build/dist/js/productionExecutable/ demo/js/
+          cp -r sample/build/dist/wasmJs/productionExecutable/ demo/wasm/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'sample/build/dist/js/productionExecutable'
+          path: 'demo'
 
       - name: Deploy to GitHub Pages
         id: deployment

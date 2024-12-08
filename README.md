@@ -4,7 +4,7 @@ Very simple snowfall animation modifier for Compose Multiplatform.
   
 ![Screenshot](content/screenshot.png)
 
-## :arrow_forward: [Live Demo](https://skeptick.github.io/snowfall-compose/)
+## :arrow_forward: [Live Demo WasmJS](https://skeptick.github.io/snowfall-compose/wasm/) / [Live Demo JS](https://skeptick.github.io/snowfall-compose/js/)
 
 ## Setup
 

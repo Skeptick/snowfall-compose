@@ -1,3 +1,5 @@
+@file:Suppress("OPT_IN_USAGE")
+
 plugins {
     id("com.android.application")
     id("kotlin-multiplatform")
@@ -8,6 +10,10 @@ plugins {
 kotlin {
     androidTarget()
     js {
+        browser()
+        binaries.executable()
+    }
+    wasmJs {
         browser()
         binaries.executable()
     }
