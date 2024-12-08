@@ -14,8 +14,8 @@ internal class SnowflakeState(
     angle: Float,
     scale: Float,
     speed: Float,
-    val scaleRatio: Float,
-    val speedRatio: Float
+    var scaleRatio: Float,
+    var speedRatio: Float
 ) {
     var x by mutableFloatStateOf(x)
     var y by mutableFloatStateOf(y)

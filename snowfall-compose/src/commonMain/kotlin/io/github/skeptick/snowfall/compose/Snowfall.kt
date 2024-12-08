@@ -29,6 +29,7 @@ import io.github.skeptick.snowfall.compose.internal.AddableAngleRange
 import io.github.skeptick.snowfall.compose.internal.DefaultSnowflakes
 import io.github.skeptick.snowfall.compose.internal.SnowfallState
 import io.github.skeptick.snowfall.compose.internal.SnowflakeState
+import io.github.skeptick.snowfall.compose.internal.SourceAngleRange
 import io.github.skeptick.snowfall.compose.internal.pathSizes
 import io.github.skeptick.snowfall.compose.internal.times
 import kotlinx.coroutines.launch
@@ -166,7 +167,7 @@ private class Snowfall(
             while (isAttached) {
                 withFrameNanos {
                     snowfallState.snowflakes.fastForEachIndexed { index, flake ->
-                        flake.down(index)
+                        flake.moveDown(index)
                     }
                 }
             }
@@ -239,16 +240,23 @@ private class Snowfall(
         }
     }
 
-    private fun SnowflakeState.down(index: Int) {
+    private fun SnowflakeState.moveDown(index: Int) {
         val flakeSize = scale * pathSizes[index % pathSizes.size]
         x = (x + speed * cos(angle)).coerceIn(-flakeSize, canvasSize.width + flakeSize)
         y = (y + speed * sin(angle)).coerceIn(-canvasSize.height, canvasSize.height + flakeSize)
         angle += Random.nextFloat() * AddableAngleRange
+        if (y == canvasSize.height + flakeSize) recycle(index)
+    }
 
-        if (y == canvasSize.height + flakeSize) {
-            x = Random.nextFloat() * canvasSize.width
-            y = -flakeSize
-        }
+    private fun SnowflakeState.recycle(index: Int) {
+        val pathSize = pathSizes[index % pathSizes.size]
+        scaleRatio = Random.nextFloat()
+        speedRatio = Random.nextFloat()
+        angle = Random.nextFloat() * SourceAngleRange
+        scale = scaleRatio * snowflakeSize / pathSize
+        speed = speedRatio * snowflakeSpeed
+        x = Random.nextFloat() * canvasSize.width
+        y = -(scale * pathSize)
     }
 
     private fun buildSnowflakes(count: Int, offset: Int = 0): List<SnowflakeState> =
