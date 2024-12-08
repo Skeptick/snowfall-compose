@@ -12,7 +12,7 @@ Very simple snowfall animation modifier for Compose Multiplatform.
 kotlin {
     commonMain {
         dependencies {
-            implementation("io.github.skeptick.snowfall:snowfall-compose:1.0.1")
+            implementation("io.github.skeptick.snowfall:snowfall-compose:1.0.2")
         }
     }
 }
@@ -39,8 +39,8 @@ Box(
             drawPosition = SnowfallDrawPosition.Ahead,
             snowflakeMinSize = 10.dp,
             snowflakeMaxSize = 20.dp,
-            snowflakeMinSpeed = 0.5f,
-            snowflakeMaxSpeed = 1.5f,
+            snowflakeMinSpeed = 0.2.dp,
+            snowflakeMaxSpeed = 1.dp,
             snowflakeDensity = 1f
         )
 ) {
