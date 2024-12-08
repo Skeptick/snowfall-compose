@@ -159,6 +159,8 @@ private class Snowfall(
     var pathSizes: FloatArray = snowflakes.pathSizes
 ) : DrawModifierNode, LayoutAwareModifierNode, Modifier.Node() {
 
+    private var canvasSize = Size.Zero
+
     override fun onAttach() {
         coroutineScope.launch {
             while (isAttached) {
@@ -171,28 +173,9 @@ private class Snowfall(
         }
     }
 
-    private fun SnowflakeState.down(index: Int) {
-        val canvasSize = snowfallState.canvasSize
-        val flakeSize = scale * pathSizes[index % pathSizes.size]
-        x = (x + speed * cos(angle)).coerceIn(
-            minimumValue = -flakeSize,
-            maximumValue = canvasSize.width + flakeSize
-        )
-        y = (y + speed * sin(angle)).coerceIn(
-            minimumValue = -canvasSize.height,
-            maximumValue = canvasSize.height + flakeSize
-        )
-        angle += Random.nextFloat() * AddableAngleRange
-
-        if (y == canvasSize.height + flakeSize) {
-            x = Random.nextFloat() * canvasSize.width
-            y = -flakeSize
-        }
-    }
-
     override fun onRemeasured(size: IntSize) {
-        if (snowfallState.canvasSize == size.toSize()) return
-        snowfallState.canvasSize = size.toSize()
+        if (canvasSize == size.toSize()) return
+        canvasSize = size.toSize()
         updateCount()
     }
 
@@ -200,10 +183,10 @@ private class Snowfall(
         if (drawPosition == SnowfallDrawPosition.Ahead) drawContent()
 
         clipRect {
-            snowfallState.snowflakes.fastForEachIndexed { i, flake ->
-                val path = snowflakes[i % snowflakes.size]
-                val pathSize = pathSizes[i % pathSizes.size]
+            snowfallState.snowflakes.fastForEachIndexed { index, flake ->
                 val scale = flake.scale
+                val path = snowflakes[index % snowflakes.size]
+                val pathSize = pathSizes[index % pathSizes.size]
                 val flakeX = flake.x - (pathSize * scale) / 2
                 val flakeY = flake.y - (pathSize * scale) / 2
                 val offset = Offset(flakeX, flakeY)
@@ -221,8 +204,7 @@ private class Snowfall(
     }
 
     fun updateCount() {
-        if (snowfallState.canvasSize == Size.Zero) return
-        val canvasSize = snowfallState.canvasSize
+        if (canvasSize == Size.Zero) return
         val canvasArea = canvasSize.width * canvasSize.height
         val snowflakesCount = (canvasArea * snowflakeDensity).roundToInt()
         if (snowfallState.snowflakes.isEmpty()) {
@@ -233,8 +215,8 @@ private class Snowfall(
     }
 
     fun updateSnowflakesSize() {
-        snowfallState.snowflakes.fastForEachIndexed { i, snowflake ->
-            snowflake.scale = snowflake.scaleRatio * snowflakeSize / pathSizes[i % pathSizes.size]
+        snowfallState.snowflakes.fastForEachIndexed { index, snowflake ->
+            snowflake.scale = snowflake.scaleRatio * snowflakeSize / pathSizes[index % pathSizes.size]
         }
     }
 
@@ -245,7 +227,6 @@ private class Snowfall(
     }
 
     private fun adjustCount(requiredCount: Int) {
-        val canvasSize = snowfallState.canvasSize
         val boundedSnowflakes = snowfallState.snowflakes.fastMapIndexedNotNull { index, flake ->
             val flakeSize = flake.scale * pathSizes[index % pathSizes.size]
             if (flake.x <= canvasSize.width + flakeSize && flake.y <= canvasSize.height + flakeSize) flake else null
@@ -258,10 +239,22 @@ private class Snowfall(
         }
     }
 
+    private fun SnowflakeState.down(index: Int) {
+        val flakeSize = scale * pathSizes[index % pathSizes.size]
+        x = (x + speed * cos(angle)).coerceIn(-flakeSize, canvasSize.width + flakeSize)
+        y = (y + speed * sin(angle)).coerceIn(-canvasSize.height, canvasSize.height + flakeSize)
+        angle += Random.nextFloat() * AddableAngleRange
+
+        if (y == canvasSize.height + flakeSize) {
+            x = Random.nextFloat() * canvasSize.width
+            y = -flakeSize
+        }
+    }
+
     private fun buildSnowflakes(count: Int, offset: Int = 0): List<SnowflakeState> =
         List(count) { index ->
             SnowflakeState(
-                canvasSize = snowfallState.canvasSize,
+                canvasSize = canvasSize,
                 pathSize = pathSizes[(index + offset) % pathSizes.size],
                 size = snowflakeSize,
                 speed = snowflakeSpeed

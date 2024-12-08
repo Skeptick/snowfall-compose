@@ -3,19 +3,15 @@ package io.github.skeptick.snowfall.compose.internal
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.util.fastForEach
 
 @Stable
 internal class SnowfallState(
-    var canvasSize: Size = Size.Zero,
     var snowflakes: List<SnowflakeState> = emptyList()
 ) {
     companion object StateSaver : Saver<SnowfallState, Any> by listSaver(
         save = { state ->
-            buildList(2 + state.snowflakes.size * 7) {
-                add(state.canvasSize.width)
-                add(state.canvasSize.height)
+            buildList(state.snowflakes.size * 7) {
                 state.snowflakes.fastForEach { snowflake ->
                     add(snowflake.x)
                     add(snowflake.y)
@@ -29,16 +25,15 @@ internal class SnowfallState(
         },
         restore = { list: List<Float> ->
             SnowfallState(
-                canvasSize = Size(list[0], list[1]),
-                snowflakes = List((list.size - 2) / 7) { index ->
+                snowflakes = List((list.size) / 7) { index ->
                     SnowflakeState(
-                        x = list[index * 7 + 2],
-                        y = list[index * 7 + 3],
-                        angle = list[index * 7 + 4],
-                        scale = list[index * 7 + 5],
-                        speed = list[index * 7 + 6],
-                        scaleRatio = list[index * 7 + 7],
-                        speedRatio = list[index * 7 + 8],
+                        x = list[index * 7 + 0],
+                        y = list[index * 7 + 1],
+                        angle = list[index * 7 + 2],
+                        scale = list[index * 7 + 3],
+                        speed = list[index * 7 + 4],
+                        scaleRatio = list[index * 7 + 5],
+                        speedRatio = list[index * 7 + 6],
                     )
                 }
             )
