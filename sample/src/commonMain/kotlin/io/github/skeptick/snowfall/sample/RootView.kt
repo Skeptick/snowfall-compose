@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -23,15 +22,10 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.RangeSlider
-import androidx.compose.material3.RangeSliderState
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableFloatStateOf
@@ -123,21 +117,13 @@ fun RootView() {
 
         if (isCompact) {
             Column(modifier = Modifier.fillMaxSize()) {
-                preview(
-                    Modifier.fillMaxWidth().weight(1f)
-                )
-                settings(
-                    Modifier.fillMaxWidth().weight(1f)
-                )
+                preview(Modifier.fillMaxWidth().weight(1f))
+                settings(Modifier.fillMaxWidth().weight(1f))
             }
         } else {
             Row(modifier = Modifier.fillMaxSize()) {
-                preview(
-                    Modifier.fillMaxHeight().weight(1f)
-                )
-                settings(
-                    Modifier.fillMaxHeight().weight(1f)
-                )
+                preview(Modifier.fillMaxHeight().weight(1f))
+                settings(Modifier.fillMaxHeight().weight(1f))
             }
         }
     }
@@ -202,6 +188,8 @@ private fun Settings(
     onSnowflakeDensityChange: (Float) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val density = LocalDensity.current
+
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
@@ -212,14 +200,18 @@ private fun Settings(
             onClick = onColorChange
         )
 
-        AlphaSelector(
-            selectedAlpha = alpha,
-            onSelect = onAlphaChange
+        SliderSelector(
+            title = "Alpha",
+            selectedValue = alpha,
+            valueRange = 0f..1f,
+            onValueChange = onAlphaChange
         )
 
-        StrokeWidthSelector(
-            selectedStroke = strokeWidth,
-            onSelect = onStrokeChange
+        SliderSelector(
+            title = "Stroke Width",
+            selectedValue = strokeWidth,
+            valueRange = 1f..3f,
+            onValueChange = onStrokeChange
         )
 
         DrawPositionSelector(
@@ -227,21 +219,30 @@ private fun Settings(
             onSelect = onDrawPositionChange
         )
 
-        SizeSelector(
-            selectedMinSize = snowflakeMinSize,
-            selectedMaxSize = snowflakeMaxSize,
-            onSelect = onSnowflakeSizeChange
+        with(density) {
+            RangeSliderSelector(
+                title = "Snowflake Size",
+                activeRangeStart = snowflakeMinSize.toPx(),
+                activeRangeEnd = snowflakeMaxSize.toPx(),
+                valueRange = 10.dp.toPx()..50.dp.toPx(),
+                onValueChange = { min, max -> onSnowflakeSizeChange(min.toDp(), max.toDp()) },
+                valueFormatter = { it.toDp().value }
+            )
+        }
+
+        RangeSliderSelector(
+            title = "Snowflake Speed",
+            activeRangeStart = snowflakeMinSpeed,
+            activeRangeEnd = snowflakeMaxSpeed,
+            valueRange = 0f..5f,
+            onValueChange = onSnowflakeSpeedChange
         )
 
-        SpeedSelector(
-            selectedMinSpeed = snowflakeMinSpeed,
-            selectedMaxSpeed = snowflakeMaxSpeed,
-            onSelect = onSnowflakeSpeedChange
-        )
-
-        DensitySelector(
-            selectedDensity = snowflakeDensity,
-            onSelect = onSnowflakeDensityChange
+        SliderSelector(
+            title = "Snowflake Density",
+            selectedValue = snowflakeDensity,
+            valueRange = 0.1f..5f,
+            onValueChange = onSnowflakeDensityChange
         )
     }
 }
@@ -251,7 +252,7 @@ private fun ColorSelector(
     selectedColor: Color,
     onClick: (Color) -> Unit
 ) {
-    Selector(
+    SelectorLayout(
         title = "Color"
     ) {
         Row(
@@ -281,45 +282,11 @@ private fun ColorSelector(
 }
 
 @Composable
-private fun AlphaSelector(
-    selectedAlpha: Float,
-    onSelect: (Float) -> Unit
-) {
-    Selector(
-        title = "Alpha"
-    ) {
-        Slider(
-            modifier = Modifier.padding(16.dp),
-            value = selectedAlpha,
-            valueRange = 0f..1f,
-            onValueChange = { onSelect(it) }
-        )
-    }
-}
-
-@Composable
-private fun StrokeWidthSelector(
-    selectedStroke: Float,
-    onSelect: (Float) -> Unit
-) {
-    Selector(
-        title = "Stroke Width"
-    ) {
-        Slider(
-            modifier = Modifier.padding(16.dp),
-            value = selectedStroke * 10,
-            valueRange = 10f..30f,
-            onValueChange = { onSelect(it / 10) }
-        )
-    }
-}
-
-@Composable
 private fun DrawPositionSelector(
     selectedPosition: SnowfallDrawPosition,
     onSelect: (SnowfallDrawPosition) -> Unit
 ) {
-    Selector(
+    SelectorLayout(
         title = "Draw Position"
     ) {
         SingleChoiceSegmentedButtonRow(
@@ -341,105 +308,5 @@ private fun DrawPositionSelector(
                 label = { Text(text = "Behind Content") }
             )
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SizeSelector(
-    selectedMinSize: Dp,
-    selectedMaxSize: Dp,
-    onSelect: (Dp, Dp) -> Unit
-) {
-    Selector(
-        title = "Snowflake Size"
-    ) {
-        val density = LocalDensity.current
-        val state = remember {
-            RangeSliderState(
-                activeRangeStart = with(density) { selectedMinSize.toPx() },
-                activeRangeEnd = with(density) { selectedMaxSize.toPx() },
-                valueRange = with(density) { (10.dp.toPx())..(50.dp.toPx()) }
-            )
-        }
-        RangeSlider(
-            modifier = Modifier.padding(16.dp),
-            state = state
-        )
-        LaunchedEffect(state.activeRangeStart, state.activeRangeEnd) {
-            onSelect(
-                with(density) { state.activeRangeStart.toDp() },
-                with(density) { state.activeRangeEnd.toDp() }
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SpeedSelector(
-    selectedMinSpeed: Float,
-    selectedMaxSpeed: Float,
-    onSelect: (Float, Float) -> Unit
-) {
-    Selector(
-        title = "Snowflake Speed"
-    ) {
-        val state = remember {
-            RangeSliderState(
-                activeRangeStart = selectedMinSpeed,
-                activeRangeEnd = selectedMaxSpeed,
-                valueRange = 0f..5f
-            )
-        }
-        RangeSlider(
-            modifier = Modifier.padding(16.dp),
-            state = state
-        )
-        LaunchedEffect(state.activeRangeStart, state.activeRangeEnd) {
-            onSelect(
-                state.activeRangeStart,
-                state.activeRangeEnd
-            )
-        }
-    }
-}
-
-@Composable
-private fun DensitySelector(
-    selectedDensity: Float,
-    onSelect: (Float) -> Unit
-) {
-    Selector(
-        title = "Snowflake Density"
-    ) {
-        Slider(
-            modifier = Modifier.padding(16.dp),
-            value = selectedDensity * 10,
-            valueRange = 1f..20f,
-            onValueChange = { onSelect(it / 10) }
-        )
-    }
-}
-
-@Composable
-private fun Selector(
-    title: String,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .border(1.dp, color = Color.Gray, shape = RoundedCornerShape(12.dp))
-            .padding(16.dp)
-    ) {
-        Text(
-            text = title,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold
-        )
-
-        content()
     }
 }
