@@ -12,7 +12,7 @@ Very simple snowfall animation modifier for Compose Multiplatform.
 kotlin {
     commonMain {
         dependencies {
-            implementation("io.github.skeptick.snowfall:snowfall-compose:1.0.0")
+            implementation("io.github.skeptick.snowfall:snowfall-compose:1.0.1")
         }
     }
 }
