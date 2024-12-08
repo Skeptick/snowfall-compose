@@ -113,14 +113,12 @@ private fun SelectorHeader(
     }
 }
 
-private fun format(float: Float): String = buildString {
-    append(float.toString().substringBefore('.'))
-    append('.')
-    append(float.toString().substringAfter('.').take(2).padEnd(2, padChar = '0'))
+private fun format(float: Float): String {
+    val integerPart = float.toString().substringBefore('.')
+    val decimalPart = float.toString().substringAfter('.', "").take(2).padEnd(2, padChar = '0')
+    return "$integerPart.$decimalPart"
 }
 
-private fun format(range: ClosedRange<Float>) = buildString {
-    append(format(range.start))
-    append(" .. ")
-    append(format(range.endInclusive))
+private fun format(range: ClosedRange<Float>): String {
+    return "${format(range.start)} .. ${format(range.endInclusive)}"
 }

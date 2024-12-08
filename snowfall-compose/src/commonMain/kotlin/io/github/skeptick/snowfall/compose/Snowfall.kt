@@ -52,8 +52,8 @@ public fun Modifier.snowfall(
     snowflakes: List<Path> = DefaultSnowflakes,
     snowflakeMinSize: Dp = 10.dp,
     snowflakeMaxSize: Dp = 20.dp,
-    snowflakeMinSpeed: Float = 0.5f,
-    snowflakeMaxSpeed: Float = 1.5f,
+    snowflakeMinSpeed: Dp = 0.2.dp,
+    snowflakeMaxSpeed: Dp = 1.dp,
     snowflakeDensity: Float = 1f
 ): Modifier =
     this then SnowfallElement(
@@ -64,9 +64,9 @@ public fun Modifier.snowfall(
         snowflakes = snowflakes,
         snowflakeMinSize = with(LocalDensity.current) { snowflakeMinSize.toPx() },
         snowflakeMaxSize = with(LocalDensity.current) { snowflakeMaxSize.toPx() },
-        snowflakeMinSpeed = snowflakeMinSpeed,
-        snowflakeMaxSpeed = snowflakeMaxSpeed,
-        snowflakeDensity = LocalDensity.current.density * 0.00005f * snowflakeDensity,
+        snowflakeMinSpeed = with(LocalDensity.current) { snowflakeMinSpeed.toPx() },
+        snowflakeMaxSpeed = with(LocalDensity.current) { snowflakeMaxSpeed.toPx() },
+        snowflakeDensity = 0.0003f / LocalDensity.current.density * snowflakeDensity,
         snowfallState = rememberSaveable(
             null,
             saver = SnowfallState.StateSaver,

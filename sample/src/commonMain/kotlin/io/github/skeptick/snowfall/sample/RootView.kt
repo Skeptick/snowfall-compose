@@ -53,8 +53,8 @@ fun RootView() {
     var drawPosition by remember { mutableStateOf(SnowfallDrawPosition.Ahead) }
     var snowflakeMinSize by remember { mutableStateOf(10.dp) }
     var snowflakeMaxSize by remember { mutableStateOf(20.dp) }
-    var snowflakeMinSpeed by remember { mutableStateOf(0.5f) }
-    var snowflakeMaxSpeed by remember { mutableStateOf(1.5f) }
+    var snowflakeMinSpeed by remember { mutableStateOf(0.2.dp) }
+    var snowflakeMaxSpeed by remember { mutableStateOf(1.dp) }
     var snowflakeDensity by remember { mutableFloatStateOf(1f) }
 
     val preview = remember {
@@ -137,8 +137,8 @@ private fun Preview(
     drawPosition: SnowfallDrawPosition,
     snowflakeMinSize: Dp,
     snowflakeMaxSize: Dp,
-    snowflakeMinSpeed: Float,
-    snowflakeMaxSpeed: Float,
+    snowflakeMinSpeed: Dp,
+    snowflakeMaxSpeed: Dp,
     snowflakeDensity: Float,
     modifier: Modifier = Modifier
 ) {
@@ -176,15 +176,15 @@ private fun Settings(
     drawPosition: SnowfallDrawPosition,
     snowflakeMinSize: Dp,
     snowflakeMaxSize: Dp,
-    snowflakeMinSpeed: Float,
-    snowflakeMaxSpeed: Float,
+    snowflakeMinSpeed: Dp,
+    snowflakeMaxSpeed: Dp,
     snowflakeDensity: Float,
     onColorChange: (Color) -> Unit,
     onAlphaChange: (Float) -> Unit,
     onStrokeChange: (Float) -> Unit,
     onDrawPositionChange: (SnowfallDrawPosition) -> Unit,
     onSnowflakeSizeChange: (Dp, Dp) -> Unit,
-    onSnowflakeSpeedChange: (Float, Float) -> Unit,
+    onSnowflakeSpeedChange: (Dp, Dp) -> Unit,
     onSnowflakeDensityChange: (Float) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -230,13 +230,16 @@ private fun Settings(
             )
         }
 
-        RangeSliderSelector(
-            title = "Snowflake Speed",
-            activeRangeStart = snowflakeMinSpeed,
-            activeRangeEnd = snowflakeMaxSpeed,
-            valueRange = 0f..5f,
-            onValueChange = onSnowflakeSpeedChange
-        )
+        with(density) {
+            RangeSliderSelector(
+                title = "Snowflake Speed",
+                activeRangeStart = snowflakeMinSpeed.toPx(),
+                activeRangeEnd = snowflakeMaxSpeed.toPx(),
+                valueRange = 0.dp.toPx()..5.dp.toPx(),
+                onValueChange = { min, max -> onSnowflakeSpeedChange(min.toDp(), max.toDp()) },
+                valueFormatter = { it.toDp().value }
+            )
+        }
 
         SliderSelector(
             title = "Snowflake Density",
