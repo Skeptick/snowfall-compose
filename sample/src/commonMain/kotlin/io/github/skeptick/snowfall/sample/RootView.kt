@@ -49,7 +49,8 @@ import io.github.skeptick.snowfall.compose.snowfall
 fun RootView() {
     var color by remember { mutableStateOf(Color.White) }
     var alpha by remember { mutableFloatStateOf(0.5f) }
-    var fading by remember { mutableFloatStateOf(3f) }
+    var fadeThreshold by remember { mutableFloatStateOf(1f) }
+    var fadeThresholdSpread by remember { mutableFloatStateOf(0f) }
     var strokeWidth by remember { mutableFloatStateOf(1f) }
     var drawPosition by remember { mutableStateOf(SnowfallDrawPosition.Ahead) }
     var snowflakeMinSize by remember { mutableStateOf(10.dp) }
@@ -64,7 +65,8 @@ fun RootView() {
                 modifier = modifier,
                 color = color,
                 alpha = alpha,
-                fading = fading,
+                fadeThreshold = fadeThreshold,
+                fadeThresholdSpread = fadeThresholdSpread,
                 strokeWidth = strokeWidth,
                 drawPosition = drawPosition,
                 snowflakeMinSize = snowflakeMinSize,
@@ -82,7 +84,8 @@ fun RootView() {
                 modifier = modifier,
                 color = color,
                 alpha = alpha,
-                fading = fading,
+                fadeThreshold = fadeThreshold,
+                fadeThresholdSpread = fadeThresholdSpread,
                 strokeWidth = strokeWidth,
                 drawPosition = drawPosition,
                 snowflakeMinSize = snowflakeMinSize,
@@ -92,7 +95,8 @@ fun RootView() {
                 snowflakeDensity = snowflakeDensity,
                 onColorChange = { color = it },
                 onAlphaChange = { alpha = it },
-                onFadingChange = { fading = it },
+                onFadeThresholdChange = { fadeThreshold = it },
+                onFadeThresholdSpreadChange = { fadeThresholdSpread = it },
                 onStrokeChange = { strokeWidth = it },
                 onDrawPositionChange = { drawPosition = it },
                 onSnowflakeSizeChange = { min, max ->
@@ -137,7 +141,8 @@ fun RootView() {
 private fun Preview(
     color: Color,
     alpha: Float,
-    fading: Float,
+    fadeThreshold: Float,
+    fadeThresholdSpread: Float,
     strokeWidth: Float,
     drawPosition: SnowfallDrawPosition,
     snowflakeMinSize: Dp,
@@ -153,7 +158,8 @@ private fun Preview(
             .snowfall(
                 color = color,
                 alpha = alpha,
-                fading = fading,
+                fadeThreshold = fadeThreshold,
+                fadeThresholdSpread = fadeThresholdSpread,
                 strokeWidth = strokeWidth,
                 drawPosition = drawPosition,
                 snowflakeMinSize = snowflakeMinSize,
@@ -178,7 +184,8 @@ private fun Preview(
 private fun Settings(
     color: Color,
     alpha: Float,
-    fading: Float,
+    fadeThreshold: Float,
+    fadeThresholdSpread: Float,
     strokeWidth: Float,
     drawPosition: SnowfallDrawPosition,
     snowflakeMinSize: Dp,
@@ -188,7 +195,8 @@ private fun Settings(
     snowflakeDensity: Float,
     onColorChange: (Color) -> Unit,
     onAlphaChange: (Float) -> Unit,
-    onFadingChange: (Float) -> Unit,
+    onFadeThresholdChange: (Float) -> Unit,
+    onFadeThresholdSpreadChange: (Float) -> Unit,
     onStrokeChange: (Float) -> Unit,
     onDrawPositionChange: (SnowfallDrawPosition) -> Unit,
     onSnowflakeSizeChange: (Dp, Dp) -> Unit,
@@ -216,10 +224,17 @@ private fun Settings(
         )
 
         SliderSelector(
-            title = "Fading",
-            selectedValue = fading,
-            valueRange = 0f..10f,
-            onValueChange = onFadingChange
+            title = "Fade threshold",
+            selectedValue = fadeThreshold,
+            valueRange = 0f..1f,
+            onValueChange = onFadeThresholdChange
+        )
+
+        SliderSelector(
+            title = "Fade threshold spread",
+            selectedValue = fadeThresholdSpread,
+            valueRange = 0f..1f,
+            onValueChange = onFadeThresholdSpreadChange
         )
 
         SliderSelector(
