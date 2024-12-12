@@ -49,8 +49,8 @@ import io.github.skeptick.snowfall.compose.snowfall
 fun RootView() {
     var color by remember { mutableStateOf(Color.White) }
     var alpha by remember { mutableFloatStateOf(0.5f) }
-    var fadeThreshold by remember { mutableFloatStateOf(1f) }
-    var fadeThresholdSpread by remember { mutableFloatStateOf(0f) }
+    var fadeThreshold by remember { mutableFloatStateOf(0.6f) }
+    var fadeThresholdSpread by remember { mutableFloatStateOf(0.3f) }
     var strokeWidth by remember { mutableFloatStateOf(1f) }
     var drawPosition by remember { mutableStateOf(SnowfallDrawPosition.Ahead) }
     var snowflakeMinSize by remember { mutableStateOf(10.dp) }
