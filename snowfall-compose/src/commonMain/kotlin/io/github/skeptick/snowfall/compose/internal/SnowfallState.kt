@@ -11,10 +11,11 @@ internal class SnowfallState(
 ) {
     companion object StateSaver : Saver<SnowfallState, Any> by listSaver(
         save = { state ->
-            buildList(state.snowflakes.size * 7) {
+            buildList(state.snowflakes.size * 8) {
                 state.snowflakes.fastForEach { snowflake ->
                     add(snowflake.x)
                     add(snowflake.y)
+                    add(snowflake.alphaOffset)
                     add(snowflake.angle)
                     add(snowflake.scale)
                     add(snowflake.speed)
@@ -25,15 +26,16 @@ internal class SnowfallState(
         },
         restore = { list: List<Float> ->
             SnowfallState(
-                snowflakes = List((list.size) / 7) { index ->
+                snowflakes = List((list.size) / 8) { index ->
                     SnowflakeState(
                         x = list[index * 7 + 0],
                         y = list[index * 7 + 1],
-                        angle = list[index * 7 + 2],
-                        scale = list[index * 7 + 3],
-                        speed = list[index * 7 + 4],
-                        scaleRatio = list[index * 7 + 5],
-                        speedRatio = list[index * 7 + 6],
+                        alphaOffset = list[index * 7 + 2],
+                        angle = list[index * 7 + 3],
+                        scale = list[index * 7 + 4],
+                        speed = list[index * 7 + 5],
+                        scaleRatio = list[index * 7 + 6],
+                        speedRatio = list[index * 7 + 7],
                     )
                 }
             )

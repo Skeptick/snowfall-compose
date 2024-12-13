@@ -35,6 +35,8 @@ Box(
         .snowfall(
             color = Color.White,
             alpha = 0.3f,
+            fadeThreshold = 0.6f,
+            fadeThresholdSpread = 0.3f,
             strokeWidth = 1f,
             drawPosition = SnowfallDrawPosition.Ahead,
             snowflakeMinSize = 10.dp,

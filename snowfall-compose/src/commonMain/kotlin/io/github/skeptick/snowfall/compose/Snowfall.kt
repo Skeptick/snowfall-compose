@@ -47,6 +47,8 @@ public enum class SnowfallDrawPosition {
 public fun Modifier.snowfall(
     color: Color = Color.White,
     alpha: Float = 0.3f,
+    fadeThreshold: Float = 1f,
+    fadeThresholdSpread: Float = 0f,
     strokeWidth: Float = 1f,
     drawPosition: SnowfallDrawPosition = SnowfallDrawPosition.Ahead,
     snowflakes: List<Path> = DefaultSnowflakes,
@@ -59,6 +61,8 @@ public fun Modifier.snowfall(
     this then SnowfallElement(
         color = color,
         alpha = alpha,
+        fadeThreshold = fadeThreshold,
+        fadeThresholdSpread = fadeThresholdSpread,
         strokeWidth = strokeWidth,
         drawPosition = drawPosition,
         snowflakes = snowflakes,
@@ -77,6 +81,8 @@ public fun Modifier.snowfall(
 private data class SnowfallElement(
     val color: Color,
     val alpha: Float,
+    val fadeThreshold: Float,
+    val fadeThresholdSpread: Float,
     val strokeWidth: Float,
     val drawPosition: SnowfallDrawPosition,
     val snowflakes: List<Path>,
@@ -92,6 +98,8 @@ private data class SnowfallElement(
         return Snowfall(
             color = color,
             alpha = alpha,
+            fadeThreshold = fadeThreshold,
+            fadeThresholdSpread = fadeThresholdSpread,
             stroke = Stroke(strokeWidth),
             drawPosition = drawPosition,
             snowflakes = ArrayList(snowflakes),
@@ -111,6 +119,8 @@ private data class SnowfallElement(
         val speedInvalidationRequired = speedInvalidationRequired(node)
         node.color = color
         node.alpha = alpha
+        node.fadeThreshold = fadeThreshold
+        node.fadeThresholdSpread = fadeThresholdSpread
         node.stroke = Stroke(strokeWidth)
         node.drawPosition = drawPosition
         node.snowflakes = ArrayList(snowflakes)
@@ -150,6 +160,8 @@ private data class SnowfallElement(
 private class Snowfall(
     var color: Color,
     var alpha: Float,
+    var fadeThreshold: Float,
+    var fadeThresholdSpread: Float,
     var stroke: Stroke,
     var drawPosition: SnowfallDrawPosition,
     var snowflakes: List<Path>,
@@ -196,7 +208,7 @@ private class Snowfall(
                     scale(scale, offset)
                     translate(offset.x, offset.y)
                 }) {
-                    drawPath(path, color, alpha, stroke)
+                    drawPath(path, color, (alpha * flake.alpha), stroke)
                 }
             }
         }
@@ -245,6 +257,14 @@ private class Snowfall(
         x = (x + speed * cos(angle)).coerceIn(-flakeSize, canvasSize.width + flakeSize)
         y = (y + speed * sin(angle)).coerceIn(-canvasSize.height, canvasSize.height + flakeSize)
         angle += Random.nextFloat() * AddableAngleRange
+
+        val yPos = (y / canvasSize.height)
+
+        alpha = when {
+            yPos < fadeThreshold  -> 1f
+            yPos > (fadeThreshold + fadeThresholdSpread) -> 0f
+            else -> 1 - (yPos - fadeThreshold) / (fadeThresholdSpread * alphaOffset)// - alphaOffset
+        }
         if (y == canvasSize.height + flakeSize) recycle(index)
     }
 
@@ -253,6 +273,7 @@ private class Snowfall(
         scaleRatio = Random.nextFloat()
         speedRatio = Random.nextFloat()
         angle = Random.nextFloat() * SourceAngleRange
+        alpha = 1f
         scale = scaleRatio * snowflakeSize / pathSize
         speed = speedRatio * snowflakeSpeed
         x = Random.nextFloat() * canvasSize.width
