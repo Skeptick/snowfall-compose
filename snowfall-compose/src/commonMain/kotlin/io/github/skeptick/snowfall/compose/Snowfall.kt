@@ -259,11 +259,11 @@ private class Snowfall(
         angle += Random.nextFloat() * AddableAngleRange
 
         val yPos = (y / canvasSize.height)
-        // alpha = yPos.pow(fading)
+
         alpha = when {
             yPos < fadeThreshold  -> 1f
             yPos > (fadeThreshold + fadeThresholdSpread) -> 0f
-            else -> 1 - (yPos - fadeThreshold) / (fadeThresholdSpread) - alphaOffset
+            else -> 1 - (yPos - fadeThreshold) / (fadeThresholdSpread * alphaOffset)// - alphaOffset
         }
         if (y == canvasSize.height + flakeSize) recycle(index)
     }

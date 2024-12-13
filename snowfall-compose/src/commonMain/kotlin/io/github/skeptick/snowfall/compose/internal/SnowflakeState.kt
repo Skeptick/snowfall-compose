@@ -38,7 +38,7 @@ internal fun SnowflakeState(
     return SnowflakeState(
         x = Random.nextFloat() * canvasSize.width,
         y = Random.nextFloat() * canvasSize.height * -1f,
-        alphaOffset = Random.nextFloat() * 0.5f,
+        alphaOffset = Random.nextFloat() * 0.5f + 0.5f,
         angle = Random.nextFloat() * SourceAngleRange,
         scale = scaleRatio * size / pathSize,
         speed = speedRatio * speed,
