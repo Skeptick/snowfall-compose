@@ -106,7 +106,8 @@ private data class SnowfallElement(
             snowflakeSize = snowflakeMinSize..snowflakeMaxSize,
             snowflakeSpeed = snowflakeMinSpeed..snowflakeMaxSpeed,
             snowflakeDensity = snowflakeDensity,
-            snowfallState = snowfallState
+            snowfallState = snowfallState,
+
         )
     }
 
@@ -169,7 +170,7 @@ private class Snowfall(
     var snowflakeSpeed: ClosedRange<Float>,
     var snowflakeDensity: Float,
     var snowfallState: SnowfallState,
-    var pathSizes: FloatArray = snowflakes.pathSizes
+    var pathSizes: FloatArray = snowflakes.pathSizes,
 ) : DrawModifierNode, LayoutAwareModifierNode, Modifier.Node() {
 
     private var canvasSize = Size.Zero
@@ -194,8 +195,11 @@ private class Snowfall(
 
     override fun ContentDrawScope.draw() {
         if (drawPosition == SnowfallDrawPosition.Ahead) drawContent()
+        val canvasHeight = (fadeThreshold + fadeThresholdSpread).coerceIn(0f, 1f) * size.height
 
-        clipRect {
+        clipRect(
+            bottom = canvasHeight,
+        ) {
             snowfallState.snowflakes.fastForEachIndexed { index, flake ->
                 val scale = flake.scale
                 val path = snowflakes[index % snowflakes.size]
