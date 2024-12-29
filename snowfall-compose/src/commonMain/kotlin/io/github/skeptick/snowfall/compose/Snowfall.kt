@@ -263,7 +263,7 @@ private class Snowfall(
         alpha = when {
             yPos < fadeThreshold  -> 1f
             yPos > (fadeThreshold + fadeThresholdSpread) -> 0f
-            else -> 1 - (yPos - fadeThreshold) / (fadeThresholdSpread * alphaOffset)// - alphaOffset
+            else -> (1 - (yPos - fadeThreshold) / (fadeThresholdSpread * alphaOffset)).coerceIn(0f, 1f)
         }
         if (y == canvasSize.height + flakeSize) recycle(index)
     }
